@@ -2,6 +2,6 @@ Django
 pandas
 PyMuPDF
 PyPDF2
-tabula-py
 gunicorn
-jpype1
+tabula-py==2.7.0
+jpype1==1.4.1
