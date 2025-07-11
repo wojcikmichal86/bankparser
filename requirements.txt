@@ -3,3 +3,4 @@ pandas
 PyMuPDF
 PyPDF2
 tabula-py
+gunicorn
