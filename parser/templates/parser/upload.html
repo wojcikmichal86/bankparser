@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Bankfile Webconverter V11e</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 40px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h1, h2 {
+            color: #444;
+        }
+
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        button {
+            background-color: #FF4B4B;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #e03d3d;
+        }
+
+        .info, .error, .success {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .info {
+            background-color: #e6f0ff;
+            color: #004085;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .table-block {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .download {
+            margin-top: 10px;
+            display: inline-block;
+            text-decoration: none;
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+        }
+
+        .download:hover {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+<body>
+    <h1>📄 Bankfile Webconverter V11e</h1>
+    <p>Belegnummer ist auch in der kombinierten Tabelle mit Download enthalten.</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">📥 PDF-Bankauszug hochladen</button>
+    </form>
+
+    {% if bank %}
+        <div class="info">📄 <strong>Erkannte Bank:</strong> {{ bank }}</div>
+    {% endif %}
+
+    {% if address %}
+        <div class="info">👤 <strong>Erkannte Adresse:</strong> {{ address }}</div>
+    {% endif %}
+
+    {% if error %}
+        <div class="error">❌ <strong>Fehler:</strong> {{ error }}</div>
+    {% endif %}
+
+    {% if tables %}
+        <h2>📊 Erkannte Tabellen:</h2>
+        {% for table in tables %}
+            <div class="table-block">
+                {{ table|safe }}
+                <a href="#" class="download">📥 CSV herunterladen (Platzhalter)</a>
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
