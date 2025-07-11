@@ -1,37 +1,29 @@
-FROM openjdk:17-slim
+# Use Python 3.10 slim image
+FROM python:3.10-slim
 
-# Zainstaluj Pythona i potrzebne narzędzia
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
     build-essential \
     curl \
     && apt-get clean
 
-# Ustaw alias
-RUN ln -s /usr/bin/python3 /usr/bin/python
+# Set working directory
+WORKDIR /app
 
-# Skopiuj i zainstaluj zależności
+# Copy and install dependencies
 COPY requirements.txt .
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-FROM openjdk:17-slim
-
-# Zainstaluj Pythona i potrzebne narzędzia
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    build-essential \
-    curl \
-    && apt-get clean
-
-# Ustaw alias
-RUN ln -s /usr/bin/python3 /usr/bin/python
-
-# Skopiuj i zainstaluj zależności
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
+# Copy project files
 COPY . .
 
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
+# Expose the port Django will run on
+ENV PORT 8000
+
+# Run the Django app using gunicorn
+CMD ["gunicorn", "bankparser.wsgi:application", "--bind", "0.0.0.0:8000"]
