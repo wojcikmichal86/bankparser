@@ -1,20 +1,20 @@
-FROM python:3.10-slim
+FROM openjdk:17-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Zainstaluj Pythona i potrzebne narzędzia
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    build-essential \
+    curl \
+    && apt-get clean
 
-RUN apt-get update && apt-get install -y openjdk-11-jdk-headless && apt-get clean
+# Ustaw alias
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
-
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-ENV PATH="$JAVA_HOME/bin:$PATH"
-
-WORKDIR /app
-
+# Skopiuj i zainstaluj zależności
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY . .
 
-EXPOSE 8000
-
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false"]
