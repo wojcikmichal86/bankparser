@@ -3,4 +3,3 @@ pandas
 PyMuPDF
 PyPDF2
 tabula-py
-openjdk-11-jre-headless
