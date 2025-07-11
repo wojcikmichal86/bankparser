@@ -4,4 +4,4 @@ PyMuPDF
 PyPDF2
 tabula-py
 gunicorn
-jpype
+jpype1
