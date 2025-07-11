@@ -1,29 +1,25 @@
-# Use Python 3.10 slim image
 FROM python:3.10-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Install system dependencies
+# Zainstaluj Javę i inne zależności
 RUN apt-get update && apt-get install -y \
-    build-essential \
+    openjdk-17-jdk \
     curl \
+    build-essential \
     && apt-get clean
 
-# Set working directory
+# Ustaw JAVA_HOME i dodaj do PATH
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# Ustaw katalog roboczy
 WORKDIR /app
 
-# Copy and install dependencies
+# Zainstaluj zależności Pythona
 COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
+# Skopiuj cały kod projektu
 COPY . .
 
-# Expose the port Django will run on
-ENV PORT 8000
-
-# Run the Django app using gunicorn
-CMD ["gunicorn", "bankparser.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Uruchom migracje i serwer Gunicorn
+CMD ["sh", "-c", "python manage.py migrate && gunicorn bankparser.wsgi:application --bind 0.0.0.0:8000"]
