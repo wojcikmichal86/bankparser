@@ -1,10 +1,7 @@
 from django.views import View
 from django.shortcuts import render
 from .forms import PDFUploadForm
-from .modules import detect_bank_and_address, fallback_postfinance_tables
-from PyPDF2 import PdfReader
-import tabula
-import pandas as pd
+from .modules import detect_bank_and_address, get_valid_dfs, fallback_postfinance_tables
 import tempfile
 import os
 
@@ -32,18 +29,21 @@ class PDFParseView(View):
             context["address"] = address
 
             try:
-                dfs = tabula.read_pdf(tmp_path, pages="all", multiple_tables=True)
-                dfs = [df for df in dfs if isinstance(df, pd.DataFrame) and not df.empty]
+                # Spróbuj pobrać prawidłowe tabele
+                dfs = get_valid_dfs(tmp_path)
 
                 if not dfs and bank == "PostFinance":
+                    context["fallback_used"] = True
                     dfs = fallback_postfinance_tables(tmp_path)
 
-                context["tables"] = [df.to_html(index=False) for df in dfs]
+                if dfs:
+                    context["tables"] = [df.to_html(index=False, classes="table table-striped") for df in dfs]
+                else:
+                    context["warning"] = "⚠️ Keine gültigen Tabellen gefunden."
 
             except Exception as e:
-                context["error"] = str(e)
+                context["error"] = f"❌ Fehler bei der Verarbeitung: {e}"
 
             finally:
                 os.unlink(tmp_path)
-
         return render(request, self.template_name, context)
